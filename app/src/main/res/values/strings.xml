@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Aviation RC</string>
+
+    <string name="problem_bt_off">Bluetooth is off, Turn it on</string>
+    <string name="turn_on">Turn On</string>
+
+    <string name="problem_need_permission">App does not have permissions to search for devices</string>
+    <string name="grant_permissions">Grant Permissions</string>
+
+    <string name="device_not_connected">App is not Connected to Car, Please connect it first</string>
+</resources>

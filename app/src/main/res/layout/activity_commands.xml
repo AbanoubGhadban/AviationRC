@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Commands"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+    <TableLayout
+        android:id="@+id/commands_table_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
+        <TableRow>
+            <TextView android:text="Forward" />
+            <EditText android:id="@+id/forward_tv"
+                android:layout_weight="1"></EditText>
+            <TextView android:text="Backward" />
+            <EditText android:id="@+id/backward_tv"
+                android:layout_weight="1"></EditText>
+        </TableRow>
+        <TableRow>
+            <TextView android:text="Right" />
+            <EditText android:id="@+id/right_tv"
+                android:layout_weight="1"></EditText>
+            <TextView android:text="Left" />
+            <EditText android:id="@+id/left_tv" android:layout_weight="1"></EditText>
+        </TableRow>
+        <TableRow>
+            <TextView android:text="Top Left" />
+            <EditText android:id="@+id/top_left_tv"
+                android:layout_weight="1"></EditText>
+            <TextView android:text="Top Right" />
+            <EditText android:id="@+id/top_right_tv"
+                android:layout_weight="1"></EditText>
+        </TableRow>
+        <TableRow>
+            <TextView android:text="Back Left" />
+            <EditText android:id="@+id/back_left_tv"
+                android:layout_weight="1"></EditText>
+            <TextView android:text="BackRight" />
+            <EditText android:id="@+id/back_right_tv"
+                android:layout_weight="1"></EditText>
+        </TableRow>
+        <TableRow>
+            <TextView android:text="Stop" />
+            <EditText android:id="@+id/stop_tv"
+                android:layout_weight="1"></EditText>
+        </TableRow>
+    </TableLayout>
+    <CheckBox
+        android:id="@+id/int_values_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Interger Values"
+        android:layout_gravity="right"
+        android:paddingRight="8dp"
+        android:checked="true" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_save_defaults"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Set Defaults"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/btn_restore_defaults"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Restore Defaults"
+            android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

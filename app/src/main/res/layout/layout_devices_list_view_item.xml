@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+    <CheckedTextView
+        android:id="@+id/device_name_tv"
+        android:singleLine="true"
+        android:layout_marginLeft="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Test Text"
+        android:textColor="#000"/>
+    <TextView
+        android:id="@+id/device_mac_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="12:22:13:45"
+        android:layout_marginLeft="8dp"
+        android:textColor="#555"/>
+    <TextView
+        android:id="@+id/connected_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_gravity="right"
+        android:visibility="gone"
+        android:text="Connected"
+        android:textColor="#555"/>
+</LinearLayout>
