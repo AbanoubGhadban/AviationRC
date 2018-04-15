@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="device_not_connected">App is not Connected to Car</string>
+</resources>

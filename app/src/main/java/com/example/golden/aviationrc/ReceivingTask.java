@@ -16,7 +16,7 @@ public class ReceivingTask extends AsyncTask<Void, String, Void> {
     private OnMessageReceivedListener listener;
     private char[] buffer = new char[1024];
 
-    public ReceivingTask(BluetoothConnection connection, OnMessageReceivedListener listener){
+    public ReceivingTask(BluetoothConnection connection, OnMessageReceivedListener listener) {
         mConnection = connection;
         connection.addOnClosedListener(new OnConnectionClosedListener() {
             @Override
@@ -29,9 +29,9 @@ public class ReceivingTask extends AsyncTask<Void, String, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
-        while (!isCancelled()){
+        while (!isCancelled()) {
             int len = mConnection.read(buffer);
-            if (len > 0){
+            if (len > 0) {
                 publishProgress(new String(buffer));
             }
         }

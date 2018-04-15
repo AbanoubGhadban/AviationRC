@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageButton
+        android:id="@+id/btn_top_left"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:text="Top Left"
+        android:background="@drawable/arrow_leftup_vector"/>
+
+    <ImageButton
+        android:id="@+id/btn_forward"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:layout_centerHorizontal="true"
+        android:text="Forward"
+        android:background="@drawable/arrow_up_vector"/>
+
+    <ImageButton
+        android:id="@+id/btn_top_right"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:layout_alignParentRight="true"
+        android:text="Top Right"
+        android:background="@drawable/arrow_rightup_vector"/>
+
+    <ImageButton
+        android:id="@+id/btn_left"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:layout_centerVertical="true"
+        android:text="Left"
+        android:background="@drawable/arrow_left_vector"/>
+
+    <ImageButton
+        android:id="@+id/btn_right"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="Right"
+        android:background="@drawable/arrow_right_vector"/>
+
+    <ImageButton
+        android:id="@+id/btn_back_left"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:layout_alignParentBottom="true"
+        android:text="Back Left"
+        android:background="@drawable/arrow_leftdown_vector"/>
+
+    <ImageButton
+        android:id="@+id/btn_backward"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Back"
+        android:background="@drawable/arrow_down_vector"/>
+
+    <ImageButton
+        android:id="@+id/btn_back_right"
+        android:layout_width="@dimen/control_btn_width"
+        android:layout_height="@dimen/control_btn_height"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/arrow_rightdown_vector"/>
+</RelativeLayout>

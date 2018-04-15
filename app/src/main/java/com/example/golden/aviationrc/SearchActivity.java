@@ -1,8 +1,8 @@
 package com.example.golden.aviationrc;
 
 import android.bluetooth.BluetoothDevice;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -59,7 +59,7 @@ public class SearchActivity extends AppCompatActivity implements OnDeviceConnect
     }
 
     public void btn_search_onClick(View view) {
-        if (BluetoothHelper.isSearching()){
+        if (BluetoothHelper.isSearching()) {
             BluetoothHelper.stopSearching();
         } else {
             BluetoothHelper.startSearching();

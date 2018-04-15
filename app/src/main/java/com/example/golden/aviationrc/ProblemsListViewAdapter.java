@@ -8,8 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.golden.aviationrc.R;
-
 import java.util.List;
 
 /**
@@ -62,7 +60,8 @@ public class ProblemsListViewAdapter extends BaseAdapter {
         private String mSolveText;
         private View.OnClickListener mSolveListener;
 
-        public ProblemHolder(){}
+        public ProblemHolder() {
+        }
 
         public ProblemHolder(String problemText, String solveText, View.OnClickListener solveListener) {
             setProblemText(problemText);

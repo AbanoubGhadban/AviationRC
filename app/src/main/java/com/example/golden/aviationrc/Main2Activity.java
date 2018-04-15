@@ -1,7 +1,7 @@
 package com.example.golden.aviationrc;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 public class Main2Activity extends AppCompatActivity {
 

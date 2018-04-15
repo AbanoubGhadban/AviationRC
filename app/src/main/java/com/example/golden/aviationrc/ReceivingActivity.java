@@ -1,7 +1,7 @@
 package com.example.golden.aviationrc;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.example.golden.aviationrc.bluetooth.BluetoothConnection;

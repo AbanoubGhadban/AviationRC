@@ -5,5 +5,5 @@ package com.example.golden.aviationrc.bluetooth;
  */
 
 public interface OnStateChangedListener {
-    public void onBluetoothStateChanged(BluetoothState state, BluetoothState prevState);
+    void onBluetoothStateChanged(BluetoothState state, BluetoothState prevState);
 }

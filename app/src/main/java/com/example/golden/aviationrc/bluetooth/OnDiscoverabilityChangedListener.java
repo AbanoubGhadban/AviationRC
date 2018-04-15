@@ -5,5 +5,5 @@ package com.example.golden.aviationrc.bluetooth;
  */
 
 public interface OnDiscoverabilityChangedListener {
-    public void onBluetoothDiscoverabilityChanged(DiscoverabilityState isDiscoverable, BluetoothHelper helper);
+    void onBluetoothDiscoverabilityChanged(DiscoverabilityState isDiscoverable, BluetoothHelper helper);
 }

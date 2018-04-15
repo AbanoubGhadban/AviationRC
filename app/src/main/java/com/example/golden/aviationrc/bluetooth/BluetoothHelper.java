@@ -21,64 +21,98 @@ import java.util.UUID;
  */
 
 public class BluetoothHelper {
+    private static final HashSet<OnStateChangedListener> mBTStateChangedListeners = new HashSet<>();
+    private static final HashSet<OnConnectionStateChangedListener> mBTConnectionStateListeners = new HashSet<>();
+    private static final HashSet<OnDeviceFoundListener> mDeviceFoundListeners = new HashSet<>();
+    private static final HashSet<OnSearchingFinishedListener> mSearchingFinishedListeners = new HashSet<>();
+    private static final HashSet<OnSearchingStartedListener> mSearchingStartedListeners = new HashSet<>();
+    private static final HashSet<OnDeviceConnectingListening> mDeviceConnectingListeners = new HashSet<>();
+    private static final HashSet<OnConnectionCancelledListener> mConnectionCancelledListeners = new HashSet<>();
+    private static final LinkedList<BluetoothConnection> mConnections = new LinkedList<>();
+    private static final HashSet<OnDeviceConnectedListener> mDeviceConnectedListeners = new HashSet<>();
+    private static final HashSet<OnConnectionClosedListener> mConnectionClosedListeners = new HashSet<>();
+    private static final HashMap<BluetoothDevice, ConnectTask> mConnectingDevices = new HashMap<>();
     private static BluetoothAdapter mBluetoothAdapter;
     private static ListeningInfo mListeningInfo;
     private static boolean isSearching;
+    private static final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch (action) {
+                case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+                    int prevState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, 0);
+                    fireBTStateChangedListeners(getBluetoothState(state), getBluetoothState(prevState));
+                    break;
+                case BluetoothDevice.ACTION_FOUND:
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    fireDeviceFoundListeners(device);
+                    break;
+                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                    isSearching = false;
+                    fireSearchingFinishedListeners();
+                    break;
+                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                    isSearching = true;
+                    fireOnSearchStartedListeners();
+                    break;
+            }
+        }
+    };
+    private static int maxConnections = -1;
+    private static ListenTask listenTask;
 
-    private static final HashSet<OnStateChangedListener> mBTStateChangedListeners = new HashSet<>();
-    private static void fireBTStateChangedListeners(BluetoothState state, BluetoothState prevState){
-        for (OnStateChangedListener listener:mBTStateChangedListeners) {
+    static {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+    private BluetoothHelper() {
+    }
+
+    private static void fireBTStateChangedListeners(BluetoothState state, BluetoothState prevState) {
+        for (OnStateChangedListener listener : mBTStateChangedListeners) {
             listener.onBluetoothStateChanged(state, prevState);
         }
     }
 
-    private static final HashSet <OnConnectionStateChangedListener> mBTConnectionStateListeners = new HashSet<>();
-    private static void fireBTConnectionStateListeners(ConnectionState state, ConnectionState prevState){
-        for (OnConnectionStateChangedListener listener:mBTConnectionStateListeners) {
+    private static void fireBTConnectionStateListeners(ConnectionState state, ConnectionState prevState) {
+        for (OnConnectionStateChangedListener listener : mBTConnectionStateListeners) {
             listener.onBluetoothConnectionStateChanged(state, prevState);
         }
     }
 
-    private static final HashSet <OnDeviceFoundListener> mDeviceFoundListeners = new HashSet<>();
-    private static void fireDeviceFoundListeners(BluetoothDevice device){
-        for (OnDeviceFoundListener listener:mDeviceFoundListeners) {
+    private static void fireDeviceFoundListeners(BluetoothDevice device) {
+        for (OnDeviceFoundListener listener : mDeviceFoundListeners) {
             listener.onDeviceFound(device);
         }
     }
 
-    private static final HashSet<OnSearchingFinishedListener> mSearchingFinishedListeners = new HashSet<>();
-    private static void fireSearchingFinishedListeners(){
-        for (OnSearchingFinishedListener listener:mSearchingFinishedListeners) {
+    private static void fireSearchingFinishedListeners() {
+        for (OnSearchingFinishedListener listener : mSearchingFinishedListeners) {
             listener.onStopSearching();
         }
     }
 
-    private static final HashSet<OnSearchingStartedListener> mSearchingStartedListeners = new HashSet<>();
-    private static void fireOnSearchStartedListeners(){
-        for (OnSearchingStartedListener listener:mSearchingStartedListeners) {
+    private static void fireOnSearchStartedListeners() {
+        for (OnSearchingStartedListener listener : mSearchingStartedListeners) {
             listener.onSearchingStarted();
         }
     }
 
-    private static final HashSet<OnDeviceConnectingListening> mDeviceConnectingListeners = new HashSet<>();
     private static void fireOnDeviceConnectingListeners(BluetoothDevice device) {
-        for (OnDeviceConnectingListening listener:mDeviceConnectingListeners) {
+        for (OnDeviceConnectingListening listener : mDeviceConnectingListeners) {
             listener.onDeviceConnecting(device);
         }
     }
 
-    private static final HashSet<OnConnectionCancelledListener> mConnectionCancelledListeners = new HashSet<>();
     private static void fireOnConnectionCancelledListeners(BluetoothDevice device) {
-        for (OnConnectionCancelledListener listener:mConnectionCancelledListeners) {
+        for (OnConnectionCancelledListener listener : mConnectionCancelledListeners) {
             listener.onConnectionCancelled(device);
         }
     }
 
-    private static int maxConnections = -1;
-    private static final LinkedList<BluetoothConnection> mConnections = new LinkedList<>();
-    private static final HashSet<OnDeviceConnectedListener> mDeviceConnectedListeners = new HashSet<>();
-    private static final HashSet<OnConnectionClosedListener> mConnectionClosedListeners = new HashSet<>();
-    private static void addConnection(final BluetoothConnection connection){
+    private static void addConnection(final BluetoothConnection connection) {
         if (connection != null) {
             if (maxConnections == mConnections.size()) {
                 Log.e("Close First", "Close First");
@@ -92,27 +126,25 @@ public class BluetoothHelper {
                 public void onConnectionClosed(BluetoothDevice device) {
                     Log.e("Connection Closed", device.getName() + " Closed Connection");
                     mConnections.remove(connection);
-                    for (OnConnectionClosedListener listener: mConnectionClosedListeners) {
+                    for (OnConnectionClosedListener listener : mConnectionClosedListeners) {
                         listener.onConnectionClosed(connection.getRemoteDevice());
                     }
                 }
             });
         }
 
-        for (OnDeviceConnectedListener listener: mDeviceConnectedListeners) {
+        for (OnDeviceConnectedListener listener : mDeviceConnectedListeners) {
             listener.onDeviceConnected(connection);
         }
     }
 
     private static BluetoothConnection getConnectionByDevice(BluetoothDevice device) {
-        for (BluetoothConnection con:mConnections) {
+        for (BluetoothConnection con : mConnections) {
             if (con.getRemoteDevice().equals(device))
                 return con;
         }
         return null;
     }
-
-    private static final HashMap<BluetoothDevice, ConnectTask> mConnectingDevices = new HashMap<>();
 
     public static void addOnDeviceConnectedListener(OnDeviceConnectedListener listener) {
         mDeviceConnectedListeners.add(listener);
@@ -130,7 +162,7 @@ public class BluetoothHelper {
         mConnectionClosedListeners.remove(listener);
     }
 
-    public static void removeAllListeners(){
+    public static void removeAllListeners() {
         mDeviceFoundListeners.clear();
         mSearchingFinishedListeners.clear();
         mSearchingStartedListeners.clear();
@@ -175,7 +207,7 @@ public class BluetoothHelper {
     }
 
     private static BluetoothState getBluetoothState(int state) {
-        switch (state){
+        switch (state) {
             case BluetoothAdapter.STATE_TURNING_ON:
                 return BluetoothState.STATE_TURNING_ON;
             case BluetoothAdapter.STATE_ON:
@@ -188,46 +220,14 @@ public class BluetoothHelper {
         return null;
     }
 
-    private static final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            switch (action) {
-                case BluetoothAdapter.ACTION_STATE_CHANGED:
-                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    int prevState = intent.getIntExtra(BluetoothAdapter.EXTRA_PREVIOUS_STATE, 0);
-                    fireBTStateChangedListeners(getBluetoothState(state), getBluetoothState(prevState));
-                    break;
-                case BluetoothDevice.ACTION_FOUND:
-                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                        fireDeviceFoundListeners(device);
-                    break;
-                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                    isSearching = false;
-                    fireSearchingFinishedListeners();
-                    break;
-                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                    isSearching = true;
-                    fireOnSearchStartedListeners();
-                    break;
-            }
-        }
-    };
-
-    static {
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    }
-
-    private BluetoothHelper() {}
-
-    public static void prepareBluetooth(Context context){
+    public static void prepareBluetooth(Context context) {
         registerReceivers(context);
         if (mBluetoothAdapter == null) {
             throw new UnsupportedOperationException("This device does not support Bluetooth");
         }
     }
 
-    private static void registerReceivers(Context context){
+    private static void registerReceivers(Context context) {
         context.registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED));
         context.registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
         context.registerReceiver(mReceiver, new IntentFilter(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED));
@@ -239,7 +239,8 @@ public class BluetoothHelper {
     private static void unregisterReceivers(Context context) {
         try {
             context.unregisterReceiver(mReceiver);
-        } catch (IllegalArgumentException e){}
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     public static boolean isEnabled() {
@@ -254,11 +255,11 @@ public class BluetoothHelper {
         mBTConnectionStateListeners.remove(listener);
     }
 
-    public static void addOnStateChangedListener(OnStateChangedListener listener){
+    public static void addOnStateChangedListener(OnStateChangedListener listener) {
         mBTStateChangedListeners.add(listener);
     }
 
-    public static void removeOnStateChangedListener(OnStateChangedListener listener){
+    public static void removeOnStateChangedListener(OnStateChangedListener listener) {
         mBTStateChangedListeners.remove(listener);
     }
 
@@ -302,13 +303,13 @@ public class BluetoothHelper {
         mConnectionCancelledListeners.remove(listener);
     }
 
-    public static void enableBluetooth(Context context){
+    public static void enableBluetooth(Context context) {
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
-    public static void disableBluetooth(){
+    public static void disableBluetooth() {
         mBluetoothAdapter.disable();
     }
 
@@ -328,7 +329,7 @@ public class BluetoothHelper {
     public static Set<BluetoothDevice> getBonedDevices() {
         Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
         HashSet<BluetoothDevice> convertedDevices = new HashSet<>(devices.size());
-        for (BluetoothDevice device:devices) {
+        for (BluetoothDevice device : devices) {
             convertedDevices.add(device);
         }
         return convertedDevices;
@@ -343,14 +344,20 @@ public class BluetoothHelper {
         mBluetoothAdapter.cancelDiscovery();
     }
 
-    public static boolean isListening() {return mListeningInfo != null;}
+    public static boolean isListening() {
+        return mListeningInfo != null;
+    }
 
-    public static boolean isConnecting() {return mConnectingDevices.size() > 0;}
+    public static boolean isConnecting() {
+        return mConnectingDevices.size() > 0;
+    }
 
-    public static boolean isConnecting(BluetoothDevice device) {return mConnectingDevices.containsKey(device);}
+    public static boolean isConnecting(BluetoothDevice device) {
+        return mConnectingDevices.containsKey(device);
+    }
 
     public static void cancelConnecting(BluetoothDevice device) {
-        if (mConnectingDevices.containsKey(device)){
+        if (mConnectingDevices.containsKey(device)) {
             ConnectTask task = mConnectingDevices.get(device);
             task.cancel(false);
             mConnectingDevices.remove(device);
@@ -359,7 +366,7 @@ public class BluetoothHelper {
     }
 
     public static void cancelAllConnecting() {
-        for (Map.Entry<BluetoothDevice, ConnectTask> entry : mConnectingDevices.entrySet()){
+        for (Map.Entry<BluetoothDevice, ConnectTask> entry : mConnectingDevices.entrySet()) {
             ConnectTask task = entry.getValue();
             task.cancel(false);
             mConnectingDevices.remove(entry.getKey());
@@ -367,15 +374,18 @@ public class BluetoothHelper {
         }
     }
 
-    public static boolean isConnected() {return mConnections.size() > 0;}
+    public static boolean isConnected() {
+        return mConnections.size() > 0;
+    }
 
     public static boolean isConnected(BluetoothDevice device) {
         return getConnectionByDevice(device) != null;
     }
 
-    public static boolean isSearching() {return isSearching;}
+    public static boolean isSearching() {
+        return isSearching;
+    }
 
-    private static ListenTask listenTask;
     public static void listen(final String name, final UUID uuid) {
         listen(new ListeningInfo(name, uuid));
     }
@@ -402,19 +412,19 @@ public class BluetoothHelper {
     }
 
     public static void stopListening() {
-        if (isListening() && listenTask != null){
+        if (isListening() && listenTask != null) {
             listenTask.cancel(false);
         }
     }
 
-    public static void connect(final Context context, final BluetoothDevice device, final UUID uuid){
-        if (isConnecting(device)){
+    public static void connect(final Context context, final BluetoothDevice device, final UUID uuid) {
+        if (isConnecting(device)) {
             throw new IllegalStateException("Device is already connecting now");
         }
 
-        if (device.getBondState() != BluetoothDevice.BOND_BONDED){
+        if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                IntentFilter filter  = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+                IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
                 BroadcastReceiver bondingReceiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
@@ -445,12 +455,8 @@ public class BluetoothHelper {
         task.execute();
     }
 
-    public void connect(Context context, final BluetoothDevice device, String uuid){
-        connect(context, device, UUID.fromString(uuid));
-    }
-
     public static void closeAllConnections() {
-        for (BluetoothConnection connection: mConnections) {
+        for (BluetoothConnection connection : mConnections) {
             Log.e("closeAllConnections", "Close All Connections");
             connection.close();
         }
@@ -462,11 +468,15 @@ public class BluetoothHelper {
             connection.close();
     }
 
-    public static void close(Context context){
+    public static void close(Context context) {
         stopSearching();
         stopListening();
         closeAllConnections();
         unregisterReceivers(context);
         removeAllListeners();
+    }
+
+    public void connect(Context context, final BluetoothDevice device, String uuid) {
+        connect(context, device, UUID.fromString(uuid));
     }
 }

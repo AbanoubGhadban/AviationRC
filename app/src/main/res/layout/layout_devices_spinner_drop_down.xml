@@ -4,20 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="4dp"
-    android:paddingBottom="4dp">
+    android:paddingBottom="4dp"
+    android:paddingTop="4dp">
+
     <CheckedTextView
         android:id="@+id/device_name_tv"
         style="?android:attr/spinnerDropDownItemStyle"
-        android:singleLine="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:ellipsize="marquee"
+        android:singleLine="true"
         tools:text="Test Text" />
+
     <TextView
         android:id="@+id/device_mac_tv"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        tools:text="12:22:13:45"
-        android:layout_marginLeft="8dp"/>
+        android:layout_marginLeft="8dp"
+        tools:text="12:22:13:45" />
 </LinearLayout>

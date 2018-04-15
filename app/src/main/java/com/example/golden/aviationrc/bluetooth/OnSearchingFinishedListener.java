@@ -5,5 +5,5 @@ package com.example.golden.aviationrc.bluetooth;
  */
 
 public interface OnSearchingFinishedListener {
-    public void onStopSearching();
+    void onStopSearching();
 }

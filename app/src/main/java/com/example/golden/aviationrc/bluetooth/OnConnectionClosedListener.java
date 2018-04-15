@@ -7,5 +7,5 @@ import android.bluetooth.BluetoothDevice;
  */
 
 public interface OnConnectionClosedListener {
-    public void onConnectionClosed(BluetoothDevice device);
+    void onConnectionClosed(BluetoothDevice device);
 }

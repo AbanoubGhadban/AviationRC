@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:minWidth="450dp">
+    android:minWidth="450dp"
+    android:orientation="vertical"
+    android:padding="16dp">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose Bluetooth Device"/>
+        android:text="Choose Bluetooth Device" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -19,47 +20,51 @@
             android:id="@+id/device_spinner"
             android:layout_width="0px"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/search_img"
             android:layout_alignParentLeft="true"
             android:layout_alignTop="@id/search_img"
-            android:layout_alignBottom="@id/search_img"
-            android:layout_toLeftOf="@id/search_img">
-        </Spinner>
+            android:layout_toLeftOf="@id/search_img"></Spinner>
+
         <ImageButton
             android:id="@+id/search_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_search"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:src="@android:drawable/ic_menu_search" />
+
         <TextView
             android:id="@+id/device_state_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Connected"
-            android:layout_below="@id/device_spinner"
             android:layout_alignRight="@id/device_spinner"
+            android:layout_below="@id/device_spinner"
             android:paddingRight="16dp"
-            android:visibility="gone"/>
+            android:text="Connected"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="right">
+
         <Button
             android:id="@+id/btn_connect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Connect"/>
+            android:text="Connect" />
+
         <Button
             android:id="@+id/btn_scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Scan"/>
+            android:text="Scan" />
+
         <Button
             android:id="@+id/btn_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"/>
+            android:text="Cancel" />
     </LinearLayout>
 
 </LinearLayout>

@@ -64,7 +64,7 @@ public class DevicesListViewAdapter extends BaseAdapter {
         }
 
         if (BluetoothHelper.isConnecting()) {
-            if (BluetoothHelper.isConnecting(device)){
+            if (BluetoothHelper.isConnecting(device)) {
                 TextView connectedTV = view.findViewById(R.id.connected_tv);
                 connectedTV.setText("Connecting..");
                 connectedTV.setVisibility(View.VISIBLE);

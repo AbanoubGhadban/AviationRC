@@ -5,5 +5,5 @@ package com.example.golden.aviationrc.bluetooth;
  */
 
 public interface OnSearchingStartedListener {
-    public void onSearchingStarted();
+    void onSearchingStarted();
 }

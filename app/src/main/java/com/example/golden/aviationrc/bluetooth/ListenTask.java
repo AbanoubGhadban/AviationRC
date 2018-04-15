@@ -12,15 +12,15 @@ import java.util.UUID;
  * Created by Golden on 3/25/2018.
  */
 
-class ListenTask extends android.os.AsyncTask<Void,Void,Void> {
+class ListenTask extends android.os.AsyncTask<Void, Void, Void> {
+    UUID uuid;
     private BluetoothServerSocket serverSocket;
     private BluetoothSocket socket;
     private BluetoothAdapter mBluetoothAdapter;
     private OnDeviceConnectedListener mDeviceConnectedListener;
     private String name;
-    UUID uuid;
 
-    ListenTask(BluetoothAdapter adapter, String name, UUID uuid, OnDeviceConnectedListener listener){
+    ListenTask(BluetoothAdapter adapter, String name, UUID uuid, OnDeviceConnectedListener listener) {
         mBluetoothAdapter = adapter;
         this.name = name;
         this.uuid = uuid;

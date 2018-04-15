@@ -100,6 +100,13 @@ public class ConnectionFragment extends DialogFragment implements OnDeviceConnec
             }
         });
 
+        ((Button)view.findViewById(R.id.btn_cancel)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getDialog().dismiss();
+            }
+        });
+
         Button btnScan = view.findViewById(R.id.btn_scan);
         ImageButton imgScan = view.findViewById(R.id.search_img);
         btnScan.setOnClickListener(scanListener);
@@ -111,7 +118,7 @@ public class ConnectionFragment extends DialogFragment implements OnDeviceConnec
         return view;
     }
 
-    private void displayDeviceState(){
+    private void displayDeviceState() {
         BluetoothDevice device = (BluetoothDevice) mDevicesSpinner.getSelectedItem();
         if (device != null) {
             if (BluetoothHelper.isConnected(device)) {
@@ -132,10 +139,14 @@ public class ConnectionFragment extends DialogFragment implements OnDeviceConnec
         }
     }
 
-    private void displayConnectedDevice(){
+    private void displayConnectedDevice() {
         if (BluetoothHelper.isConnected()) {
             BluetoothDevice connectedDevice = BluetoothHelper.getConnection(0).getRemoteDevice();
             mDevicesSpinner.setSelection(Global.getDeviceIndexFromSet(mDevices, connectedDevice));
+        } else if (Global.lastDisconnectedDevice != null) {
+            int index = Global.getDeviceIndexFromSet(mDevices, Global.lastDisconnectedDevice);
+            if (index >= 0)
+                mDevicesSpinner.setSelection(Global.getDeviceIndexFromSet(mDevices, Global.lastDisconnectedDevice));
         }
     }
 

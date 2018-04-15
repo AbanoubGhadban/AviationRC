@@ -1,20 +1,29 @@
 package com.example.golden.aviationrc;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,28 +38,30 @@ import com.example.golden.aviationrc.bluetooth.OnStateChangedListener;
 
 import java.util.LinkedList;
 
-public class MainActivity extends AppCompatActivity implements OnStateChangedListener, OnDeviceConnectingListening, OnDeviceConnectedListener, OnConnectionClosedListener, View.OnTouchListener, OnConnectionCancelledListener {
+import javax.microedition.khronos.opengles.GL;
+
+public class MainActivity extends AppCompatActivity implements OnStateChangedListener, OnDeviceConnectingListening, OnDeviceConnectedListener, OnConnectionClosedListener, OnConnectionCancelledListener, CompoundButton.OnCheckedChangeListener {
     private ListView mProblemsLV;
     private Button btnConnect;
     private Button btnDisconnect;
+    private Switch mLineFollowerSwitch;
+    private TextView mErrorTV;
+    private ControlsJoystickFragment controlsJoystickFragment;
+    private ControlButtonsFragment controlButtonsFragment;
+    private static Fragment currentFragment;
 
-    private static final int COMMANDS_HISTORY_SIZE = 5;
-    private final LinkedList<Character> mCommandsHistory = new LinkedList<>();
-    ReceivingTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = new Intent(this, Main2Activity.class);
-        startActivity(intent);
-        return;
+        Global.context = getApplicationContext();
 
-//        BluetoothHelper.prepareBluetooth(getApplicationContext());
-//
-//        mProblemsLV = new ListView(getApplicationContext());
-//        ListView.LayoutParams lp = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//        mProblemsLV.setLayoutParams(lp);
-//        prepareActivity();
+        BluetoothHelper.prepareBluetooth(getApplicationContext());
+
+        mProblemsLV = new ListView(getApplicationContext());
+        ListView.LayoutParams lp = new ListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mProblemsLV.setLayoutParams(lp);
+        prepareActivity();
     }
 
     @Override
@@ -66,9 +77,9 @@ public class MainActivity extends AppCompatActivity implements OnStateChangedLis
                         Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED);
     }
 
-    LinkedList<ProblemsListViewAdapter.ProblemHolder> getProblems(){
+    LinkedList<ProblemsListViewAdapter.ProblemHolder> getProblems() {
         LinkedList<ProblemsListViewAdapter.ProblemHolder> problems = new LinkedList<>();
-        if (!checkIfPermissionsGranted()){
+        if (!checkIfPermissionsGranted()) {
             ProblemsListViewAdapter.ProblemHolder problem = new ProblemsListViewAdapter.ProblemHolder();
             problem.setProblemText(getString(R.string.problem_need_permission));
             problem.setSolveText(getString(R.string.grant_permissions));
@@ -76,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements OnStateChangedLis
                 @Override
                 public void onClick(View view) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
                     }
                 }
@@ -117,17 +128,21 @@ public class MainActivity extends AppCompatActivity implements OnStateChangedLis
             displayProblems(problems);
         else {
             setContentView(R.layout.activity_main);
-
             btnConnect = findViewById(R.id.btn_connection);
             btnDisconnect = findViewById(R.id.btn_disconnect);
-            findViewById(R.id.btn_forward).setOnTouchListener(this);
-            findViewById(R.id.btn_backward).setOnTouchListener(this);
-            findViewById(R.id.btn_left).setOnTouchListener(this);
-            findViewById(R.id.btn_right).setOnTouchListener(this);
-            findViewById(R.id.btn_top_left).setOnTouchListener(this);
-            findViewById(R.id.btn_top_right).setOnTouchListener(this);
-            findViewById(R.id.btn_back_left).setOnTouchListener(this);
-            findViewById(R.id.btn_back_right).setOnTouchListener(this);
+            mLineFollowerSwitch = findViewById(R.id.line_follower_switch);
+            mErrorTV = findViewById(R.id.error_tv);
+
+            mLineFollowerSwitch.setOnCheckedChangeListener(this);
+
+            controlButtonsFragment = new ControlButtonsFragment();
+            controlsJoystickFragment = new ControlsJoystickFragment();
+            if (currentFragment == null)
+                currentFragment = controlButtonsFragment;
+
+            try {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder_frame_layout, currentFragment).commitAllowingStateLoss();
+            } catch (IllegalStateException ex) {}
 
             adjustButtonsBackground();
         }
@@ -146,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements OnStateChangedLis
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        BluetoothHelper.close(getApplicationContext());
-        task.cancel(false);
+        if (isFinishing())
+            BluetoothHelper.close(getApplicationContext());
     }
 
     @Override
@@ -177,17 +192,18 @@ public class MainActivity extends AppCompatActivity implements OnStateChangedLis
 
     @Override
     public void onConnectionClosed(BluetoothDevice device) {
+        Global.lastDisconnectedDevice = device;
         adjustButtonsBackground();
     }
 
-    private void adjustButtonsBackground(){
+    private void adjustButtonsBackground() {
         int backgroundRes;
         if (BluetoothHelper.isConnected())
-            backgroundRes = R.drawable.background_connected;
+            backgroundRes = R.mipmap.background_connection;
         else if (BluetoothHelper.isConnecting())
-            backgroundRes = R.drawable.background_connecting;
+            backgroundRes = R.mipmap.background_disconnected;
         else
-            backgroundRes = R.drawable.background_disconnected;
+            backgroundRes = R.mipmap.background_disconnected;
 
         if (btnConnect != null)
             btnConnect.setBackgroundResource(backgroundRes);
@@ -198,71 +214,16 @@ public class MainActivity extends AppCompatActivity implements OnStateChangedLis
             else
                 btnDisconnect.setEnabled(false);
         }
-    }
 
-    private void sendCommand(char command) {
-        BluetoothConnection connection = BluetoothHelper.getConnection(0);
-        connection.write(new char[] {command});
-        connection.flush();
-
-        if (mCommandsHistory.size() == COMMANDS_HISTORY_SIZE)
-            mCommandsHistory.removeFirst();
-
-        mCommandsHistory.add(command);
-    }
-
-    private void releaseCommand(char command){
-        BluetoothConnection connection = BluetoothHelper.getConnection(0);
-        mCommandsHistory.remove((Object)command);
-        if (mCommandsHistory.size() > 0)
-            connection.write(new char[] {mCommandsHistory.getLast()});
-        else
-            connection.write(new char[] {Commands.getStop()});
-        connection.flush();
-    }
-
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        if (BluetoothHelper.isConnected()){
-            char command = '\0';
-            switch (view.getId()) {
-                case R.id.btn_forward:
-                    command = Commands.getForward();
-                    break;
-                case R.id.btn_backward:
-                    command = Commands.getBackward();
-                    break;
-                case R.id.btn_right:
-                    command = Commands.getRight();
-                    break;
-                case R.id.btn_left:
-                    command = Commands.getLeft();
-                    break;
-                case R.id.btn_top_right:
-                    command = Commands.getTopRight();
-                    break;
-                case R.id.btn_top_left:
-                    command = Commands.getTopLeft();
-                    break;
-                case R.id.btn_back_right:
-                    command = Commands.getBackRight();
-                    break;
-                case R.id.btn_back_left:
-                    command = Commands.getBackLeft();
-                    break;
+        if (mErrorTV != null) {
+            if (BluetoothHelper.isConnected()){
+                mErrorTV.setVisibility(View.GONE);
+                mLineFollowerSwitch.setVisibility(View.VISIBLE);
+            } else {
+                mLineFollowerSwitch.setVisibility(View.GONE);
+                mErrorTV.setVisibility(View.VISIBLE);
             }
-
-            if (command != '\0') {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
-                    sendCommand(command);
-                else if (motionEvent.getAction() == MotionEvent.ACTION_UP)
-                    releaseCommand(command);
-            }
-        } else {
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_DOWN)
-                Toast.makeText(this, getString(R.string.device_not_connected), Toast.LENGTH_SHORT).show();
         }
-        return false;
     }
 
     public void btn_disconnect_onClick(View view) {
@@ -275,8 +236,28 @@ public class MainActivity extends AppCompatActivity implements OnStateChangedLis
         adjustButtonsBackground();
     }
 
-//    public void btn_messages_onClick(View view) {
-//        Intent intent = new Intent(this, ReceivingActivity.class);
-//        startActivity(intent);
-//    }
+    //When Line Follower Switch checked or unchecked
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        if (b)
+            Commands.startLineFollower();
+        else
+            Commands.stopLineFollower();
+    }
+
+    public void btn_reconnect_onClick(View view) {
+        if (!BluetoothHelper.isConnected() && Global.lastDisconnectedDevice != null)
+            BluetoothHelper.connect(getApplicationContext(), Global.lastDisconnectedDevice, Global.UUID_INSECURE);
+    }
+
+    public void btn_controls_onClick(View view) {
+        if (currentFragment instanceof ControlButtonsFragment)
+            currentFragment = controlsJoystickFragment;
+        else
+            currentFragment = controlButtonsFragment;
+
+        try {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_holder_frame_layout, currentFragment).commitAllowingStateLoss();
+        } catch (IllegalStateException ex) {}
+    }
 }

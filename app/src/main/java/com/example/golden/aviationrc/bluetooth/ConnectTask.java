@@ -12,13 +12,13 @@ import java.util.UUID;
  * Created by Golden on 3/25/2018.
  */
 
-public class ConnectTask extends AsyncTask<Void,Void,Void> {
+public class ConnectTask extends AsyncTask<Void, Void, Void> {
     private BluetoothSocket socket;
     private OnDeviceConnectedListener mDeviceConnectedListener;
     private BluetoothDevice mDevice;
     private UUID uuid;
 
-    ConnectTask(BluetoothDevice device, UUID uuid, OnDeviceConnectedListener listener){
+    ConnectTask(BluetoothDevice device, UUID uuid, OnDeviceConnectedListener listener) {
         this.uuid = uuid;
         mDeviceConnectedListener = listener;
         mDevice = device;
@@ -42,7 +42,7 @@ public class ConnectTask extends AsyncTask<Void,Void,Void> {
             try {
                 socket.connect();
             } catch (IOException e) {
-                Log.e("Connecting to server","Cloud not Connect to Device");
+                Log.e("Connecting to server", "Cloud not Connect to Device");
                 try {
                     socket.close();
                 } catch (IOException e1) {
@@ -64,8 +64,7 @@ public class ConnectTask extends AsyncTask<Void,Void,Void> {
                 } catch (IOException e) {
                     Log.e("Connection Task", "Could not close Socket after cancellation");
                 }
-            }
-            else
+            } else
                 try {
                     connection = new BluetoothConnection(socket);
                 } catch (IOException e) {
@@ -73,7 +72,8 @@ public class ConnectTask extends AsyncTask<Void,Void,Void> {
                     connection = null;
                     try {
                         socket.close();
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                    }
                 }
         }
 

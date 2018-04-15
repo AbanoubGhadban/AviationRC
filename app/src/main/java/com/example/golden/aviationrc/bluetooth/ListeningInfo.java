@@ -15,19 +15,23 @@ public class ListeningInfo {
         mUUID = uuid;
     }
 
-    public String getName() {return mName;}
+    public String getName() {
+        return mName;
+    }
 
-    public void setName(String name) {mName = name;};
+    public void setName(String name) {
+        mName = name;
+    }
 
     public UUID getUUID() {
         return mUUID;
     }
 
-    public void setUUID(UUID uuid) {
-        this.mUUID = uuid;
-    }
-
     public void setUUID(String uuid) {
         this.mUUID = UUID.fromString(uuid);
+    }
+
+    public void setUUID(UUID uuid) {
+        this.mUUID = uuid;
     }
 }

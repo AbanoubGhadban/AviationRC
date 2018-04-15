@@ -1,8 +1,15 @@
 package com.example.golden.aviationrc.bluetooth;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
+
+import com.example.golden.aviationrc.Global;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,10 +25,23 @@ public class BluetoothConnection {
     private BluetoothSocket mSocket;
     private InputStreamReader reader;
     private OutputStreamWriter writer;
+    private Context mContext;
 
     private LinkedList<OnConnectionClosedListener> mClosedListeners = new LinkedList<>();
-    private void fireClosedListeners(){
-        for (OnConnectionClosedListener listener:mClosedListeners) {
+
+    public BluetoothConnection(BluetoothSocket socket) throws IOException {
+        mSocket = socket;
+        try {
+            reader = new InputStreamReader(socket.getInputStream());
+            writer = new OutputStreamWriter(socket.getOutputStream());
+            mContext = Global.context;
+        } catch (IOException e) {
+            throw new IOException("Could not get Input/Output Streams from Socket", e);
+        }
+    }
+
+    private void fireClosedListeners() {
+        for (OnConnectionClosedListener listener : mClosedListeners) {
             listener.onConnectionClosed(mSocket.getRemoteDevice());
         }
         mClosedListeners.clear();
@@ -35,19 +55,25 @@ public class BluetoothConnection {
         mClosedListeners.remove(listener);
     }
 
-    public BluetoothConnection (BluetoothSocket socket) throws IOException {
-        mSocket = socket;
-        try {
-            reader = new InputStreamReader(socket.getInputStream());
-            writer = new OutputStreamWriter(socket.getOutputStream());
-        } catch (IOException e) {
-            throw new IOException("Could not get Input/Output Streams from Socket", e);
-        }
+    public boolean isConnected() {
+        return mSocket.isConnected();
     }
 
-    public boolean isConnected(){return mSocket.isConnected();}
+    public void close() {
+//        IntentFilter closedFilter = new IntentFilter(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
+//        mContext.registerReceiver(new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE, 0);
+//                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                if (device.equals(getRemoteDevice()) && state == BluetoothAdapter.STATE_DISCONNECTED){
+//                    context.unregisterReceiver(this);
+//                    fireClosedListeners();
+//                    mClosedListeners.clear();
+//                }
+//            }
+//        }, closedFilter);
 
-    public void close(){
         try {
             mSocket.close();
             reader.close();
@@ -56,6 +82,7 @@ public class BluetoothConnection {
             Log.e("BluetoothConnection", "Could not colse Socket");
         }
         fireClosedListeners();
+        mClosedListeners.clear();
         Log.e("Connection", "Close Function");
     }
 
@@ -65,7 +92,9 @@ public class BluetoothConnection {
             onConnectionClosedListener.onConnectionClosed(mSocket.getRemoteDevice());
     }
 
-    public BluetoothDevice getRemoteDevice(){return mSocket.getRemoteDevice();}
+    public BluetoothDevice getRemoteDevice() {
+        return mSocket.getRemoteDevice();
+    }
 
     public void write(int c) {
         try {

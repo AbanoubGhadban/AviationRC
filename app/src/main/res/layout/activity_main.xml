@@ -1,88 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:padding="8dp"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/main_background"
+        android:scaleType="centerCrop"/>
 
     <LinearLayout
-        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/btn_connection"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/background_disconnected"
-            android:onClick="btn_connection_onClick"
-            android:layout_marginRight="8dp"/>
-        <Button
-            android:id="@+id/btn_disconnect"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/background_disconnect"
-            android:onClick="btn_disconnect_onClick"
-            android:layout_marginRight="8dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="0dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="@dimen/action_bar_marin_bottom">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_alignParentTop="true">
+
+            <Button
+                android:id="@+id/btn_connection"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginRight="8dp"
+                android:background="@mipmap/background_connection"
+                android:onClick="btn_connection_onClick" />
+
+            <Button
+                android:id="@+id/btn_disconnect"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginRight="8dp"
+                android:background="@mipmap/background_disconnect"
+                android:onClick="btn_disconnect_onClick" />
+            <Button
+                android:id="@+id/btn_reconnect"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginRight="8dp"
+                android:background="@mipmap/background_reconnect"
+                android:onClick="btn_reconnect_onClick" />
+            <Button
+                android:id="@+id/btn_controls"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginRight="8dp"
+                android:background="@mipmap/steering_wheel"
+                android:onClick="btn_controls_onClick" />
+        </LinearLayout>
+        <FrameLayout
+            android:id="@+id/fragment_holder_frame_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:padding="16dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
+            xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+        </FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="@dimen/not_connected_text_weight"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:src="@drawable/aviation_logo"
+                android:adjustViewBounds="true"/>
+            <Switch
+                android:id="@+id/line_follower_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#DDD"
+                style="@style/Widget.AppCompat.CompoundButton.Switch"
+                android:text="Line Follower  "
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/error_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/device_not_connected"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FF0"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:src="@drawable/robolymbics_white"
+                android:adjustViewBounds="true"/>
+        </LinearLayout>
+
     </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
-        <Button
-            android:id="@+id/btn_top_left"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Top Left"/>
-        <Button
-            android:id="@+id/btn_forward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="Forward"/>
-        <Button
-            android:id="@+id/btn_top_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="Top Right"/>
-        <Button
-            android:id="@+id/btn_left"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_top_left"
-            android:text="Left"/>
-        <Button
-            android:id="@+id/btn_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_top_right"
-            android:layout_alignParentRight="true"
-            android:text="Right"/>
-        <Button
-            android:id="@+id/btn_back_left"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_left"
-            android:text="Back Left"/>
-        <Button
-            android:id="@+id/btn_backward"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/btn_left"
-            android:text="Back"/>
-        <Button
-            android:id="@+id/btn_back_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btn_left"
-            android:layout_alignParentRight="true"
-            android:text="Back Right"/>
-    </RelativeLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"></ScrollView>
-</LinearLayout>
+</FrameLayout>

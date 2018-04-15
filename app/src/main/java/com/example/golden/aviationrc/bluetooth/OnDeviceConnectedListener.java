@@ -5,5 +5,5 @@ package com.example.golden.aviationrc.bluetooth;
  */
 
 public interface OnDeviceConnectedListener {
-    public void onDeviceConnected(BluetoothConnection connection);
+    void onDeviceConnected(BluetoothConnection connection);
 }
